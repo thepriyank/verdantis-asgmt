@@ -1,0 +1,15 @@
+[
+  {"item_id": "1001", "item_description": "bearing", "manufacturer": "SKF",
+   "manufacturer_part_number": "", "category": "Mechanical", "unit_of_measure": "EA",
+   "source_system": "ERP-A"},
+  {"item_id": "1002", "item_description": "SKF Bearing 6205 ZZ", "manufacturer": "SKF",
+   "manufacturer_part_number": "6205-ZZ", "category": "Electrical", "unit_of_measure": "EA",
+   "source_system": "ERP-B"},
+  {"item_id": "1003", "item_description": "Gate valve 2 inch flanged", "manufacturer": "Kitz",
+   "manufacturer_part_number": "n/a", "category": "Piping", "unit_of_measure": "each",
+   "source_system": "ERP-A"},
+  {"item_id": "  ", "item_description": "Fuse 10A", "manufacturer": "",
+   "manufacturer_part_number": null, "category": "Electrical", "unit_of_measure": "EA",
+   "source_system": "ERP-B"},
+  "not a record"
+]

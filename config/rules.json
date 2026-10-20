@@ -2,10 +2,11 @@
   "_comment": "All thresholds, token lists and severity/confidence policy live here (CLAUDE.md rule 10). See docs/DECISIONS.md.",
   "missing_tokens": ["null", "n/a", "na", "-"],
   "required_fields": ["item_id", "item_description", "unit_of_measure", "source_system"],
-  "rule_versions": {"R-001": "1"},
+  "rule_versions": {"R-001": "1", "R-002": "1"},
   "scoring": {
     "R-001.malformed_row": {"severity": "high", "confidence": 1.0},
     "R-001.no_item_id": {"severity": "high", "confidence": 1.0},
-    "R-001.incomplete": {"severity": "medium", "confidence": 1.0}
+    "R-001.incomplete": {"severity": "medium", "confidence": 1.0},
+    "R-002.missing_mpn": {"severity": "medium", "confidence": 0.95}
   }
 }

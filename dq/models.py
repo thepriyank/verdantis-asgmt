@@ -7,7 +7,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict
 
-# The record fields from the brief. Fixed by the data model, so not configuration.
+# The record fields from the brief. Defined by the data model, so not configuration.
 FIELDS: tuple[str, ...] = (
     "item_id",
     "item_description",

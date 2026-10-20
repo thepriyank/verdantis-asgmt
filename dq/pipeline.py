@@ -1,1 +1,61 @@
-"""Runs all checks over frozen records, sorts candidates, builds the summary (slice S2)."""
+"""Runs every check over frozen records, sorts candidates, builds the summary.
+
+Checks only read records, so the pipeline cannot change the input.
+"""
+
+from __future__ import annotations
+
+from collections import Counter
+from collections.abc import Callable, Sequence
+from typing import Any
+
+from pydantic import BaseModel, ConfigDict
+
+from dq.config import Config
+from dq.models import ParsedRecord, ParseIssue, ReviewCandidate, Severity
+from dq.rules import r001_incomplete, r002_missing_mpn
+
+Check = Callable[[Sequence[ParsedRecord], Config], list[ReviewCandidate]]
+
+# Deterministic rules first; heuristics are added here as their slices land.
+CHECKS: tuple[Check, ...] = (r001_incomplete.check, r002_missing_mpn.check)
+
+_SEVERITY_RANK = {Severity.HIGH: 0, Severity.MEDIUM: 1, Severity.LOW: 2}
+
+
+class ReviewResult(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    summary: dict[str, Any]
+    candidates: tuple[ReviewCandidate, ...]
+    parse_issues: tuple[ParseIssue, ...]
+
+
+def _sort_key(c: ReviewCandidate) -> tuple[int, bool, str, str, int]:
+    # Records without an id sort after those with one inside the same severity.
+    return (
+        _SEVERITY_RANK[c.severity],
+        c.item_id is None,
+        c.item_id or "",
+        c.rule_id,
+        c.record_ref.row_index,
+    )
+
+
+def _count(values: Sequence[str]) -> dict[str, int]:
+    return dict(sorted(Counter(values).items()))
+
+
+def run_review(
+    records: Sequence[ParsedRecord], parse_issues: Sequence[ParseIssue], cfg: Config
+) -> ReviewResult:
+    found = [c for check in CHECKS for c in check(records, cfg)]
+    candidates = tuple(sorted(found, key=_sort_key))
+    summary = {
+        "total_records": len(records),
+        "total_candidates": len(candidates),
+        "by_severity": _count([c.severity.value for c in candidates]),
+        "by_source": _count([c.source.value for c in candidates]),
+        "by_issue_type": _count([c.issue_type for c in candidates]),
+    }
+    return ReviewResult(summary=summary, candidates=candidates, parse_issues=tuple(parse_issues))

@@ -58,20 +58,20 @@ Brief #8 (confidence + severity) and #9 (explanation) are part of every candidat
 |----|-----------------------|--------------------------------------------|------|------|
 | AC1 | R-001 incomplete row (7) | **Given** a row whose `item_id` is `"  "` **when** reviewed **then** one R-001 candidate, severity high, evidence shows the raw `"  "` | `tests/unit/test_r001_incomplete.py` | [x] |
 | AC2 | R-001 malformed row (7, R5) | **Given** an array with a string element between two valid rows **when** reviewed **then** a `parse_issue` and an R-001 high are emitted for it, and both valid rows are still checked | same | [x] |
-| AC3 | R-002 missing MPN (1) | **Given** manufacturer "SKF" and MPN `""` / `"n/a"` / `null` **when** reviewed **then** R-002, severity medium, confidence 0.95, explanation "Manufacturer is present but manufacturer part number is missing." | `tests/unit/test_r002_missing_mpn.py` | [ ] |
-| AC4 | R-002 negative | **Given** both manufacturer and MPN blank, or both present **when** reviewed **then** no R-002 | same | [ ] |
+| AC3 | R-002 missing MPN (1) | **Given** manufacturer "SKF" and MPN `""` / `"n/a"` / `null` **when** reviewed **then** R-002, severity medium, confidence 0.95, explanation "Manufacturer is present but manufacturer part number is missing." | `tests/unit/test_r002_missing_mpn.py` | [x] |
+| AC4 | R-002 negative | **Given** both manufacturer and MPN blank, or both present **when** reviewed **then** no R-002 | same | [x] |
 | AC5 | R-003 duplicate id (3) | **Given** two rows with `item_id` 1001 and different descriptions **when** reviewed **then** R-003 high on each row, each listing the other in `related_item_ids`/evidence; identical copies → medium | `tests/unit/test_r003_duplicate_id.py` | [ ] |
 | AC6 | R-004 UoM (5) | **Given** UoM `"each"` / `"XYZ"` / `"EA"` **when** reviewed **then** low + `suggested_value "EA"` / medium, no suggested value / no candidate | `tests/unit/test_r004_uom.py` | [ ] |
 | AC7 | H-001 vague description (2) | **Given** descriptions `"bearing"`, `"valve"`, `"SKF Bearing 6205 ZZ"` **when** reviewed **then** H-001 (source heuristic) on the first two only | `tests/unit/test_h001_vague.py` | [ ] |
 | AC8 | H-002 potential duplicate (3) | **Given** ERP-A `SKF / "6205-ZZ"` and ERP-B `skf / "6205 zz"` with different item_ids **when** reviewed **then** `potential_duplicate` on both, confidence 0.9, each in the other's `related_item_ids` | `tests/unit/test_h002_duplicates.py` | [ ] |
 | AC9 | H-003 category mismatch (4) | **Given** "SKF Bearing 6205 ZZ" with category Electrical **when** reviewed **then** H-003 low, confidence 0.70, evidence names the keyword "bearing"; with category Mechanical → none | `tests/unit/test_h003_category.py` | [ ] |
 | AC10 | Brief example (R2) | **Given** the brief's 2-record example **when** reviewed **then** output contains `missing_part_number` for 1001 and `category_mismatch_candidate` for 1002 with the brief's severity/confidence | `tests/golden/test_brief_example.py` | [ ] |
-| AC11 | No mutation (R7) | **Given** any input list **when** reviewed **then** it deep-equals its pre-run deep copy | `tests/properties/test_no_mutation.py` | [ ] |
-| AC12 | Candidate language (R3) | **Given** any input **when** reviewed **then** the serialized output (and the JSON/markdown report) contains no banned word | `tests/properties/test_banned_language.py` | [ ] |
-| AC13 | Schema + provenance (R2, R4) | **Given** any input **when** reviewed **then** every candidate validates against `ReviewCandidate`, has `status=="needs_review"`, a `source`, `rule_id` and `rule_version` | `tests/properties/test_schema.py` | [ ] |
-| AC14 | Determinism (I4) | **Given** the same input twice **when** reviewed **then** the JSON output is identical | `tests/properties/test_determinism.py` | [ ] |
+| AC11 | No mutation (R7) | **Given** any input list **when** reviewed **then** it deep-equals its pre-run deep copy | `tests/properties/test_no_mutation.py` | [x] |
+| AC12 | Candidate language (R3) | **Given** any input **when** reviewed **then** the serialized output (and the JSON/markdown report) contains no banned word | `tests/properties/test_banned_language.py` | [x] |
+| AC13 | Schema + provenance (R2, R4) | **Given** any input **when** reviewed **then** every candidate validates against `ReviewCandidate`, has `status=="needs_review"`, a `source`, `rule_id` and `rule_version` | `tests/properties/test_schema.py` | [x] |
+| AC14 | Determinism (I4) | **Given** the same input twice **when** reviewed **then** the JSON output is identical | `tests/properties/test_determinism.py` | [x] |
 | AC15 | Golden fixture (R8) | **Given** `data/samples/edge_cases.json` **when** reviewed **then** output exactly matches `tests/golden/expected_output.json` | `tests/golden/test_golden.py` | [ ] |
-| AC16 | CLI errors (R5, I6) | **Given** `[]` / a missing path / invalid JSON **when** the CLI runs **then** exit 0 + message / exit 2 / exit 2, no traceback | `tests/unit/test_cli.py` | [ ] |
+| AC16 | CLI errors (R5, I6) | **Given** `[]` / a missing path / invalid JSON **when** the CLI runs **then** exit 0 + message / exit 2 / exit 2, no traceback | `tests/unit/test_cli.py` | [x] |
 | AC17 | *(Should)* A-001 AI stub (6, R9) | **Given** a vague description **when** reviewed **then** A-001 with confidence ≤ 0.6 and source `ai_assisted_candidate`; only allowlisted fields reach the suggester; invalid suggester output → no candidate | `tests/unit/test_ai_guardrails.py` | [ ] |
 
 ## Edge cases covered (from the brief)
