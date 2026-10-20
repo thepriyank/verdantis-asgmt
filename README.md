@@ -58,7 +58,7 @@ A full candidate carries `finding_id`, `record_ref`, `evidence`, `suggested_acti
 - **One policy place:** severity and confidence come only from `dq/scoring.py` and `config/rules.json`. UoM allowlist, aliases, generic nouns and category keywords live in `config/`.
 
 ## Tests and verification
-- **180 tests, 99% coverage of `dq/`** (100% of `dq/rules`, `dq/heuristics`, `dq/normalize.py`, `dq/ai`); ruff clean; mypy strict clean.
+- **180 tests, 99% coverage of `dq/`** (100% of `dq/rules`, `dq/heuristics`, `dq/normalize.py`; `dq/ai/stub.py` is 94%; only `__main__.py` and the CLI's write-error path are uncovered); ruff clean; mypy strict clean.
 - Unit tests per check (positive, negative, blank/null/malformed edge cases), property tests, a golden test (`data/samples/edge_cases.json` → `tests/golden/expected_output.json`), the brief's example, CLI exit-code tests, and regression tests for every red-team finding.
 - Mutation checks: I broke the logic by hand after each slice and confirmed a test fails. An independent red-team agent then tried 41 mutations; 7 survived (5 real gaps now covered, 2 equivalent). Details in [docs/AI_USAGE.md](docs/AI_USAGE.md).
 - The golden file is red-zone: a human reviews it and regenerates it; an agent never rewrites it to go green.

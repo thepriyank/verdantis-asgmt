@@ -93,7 +93,7 @@ Brief #8 (confidence + severity) and #9 (explanation) are part of every candidat
 
 ## MoSCoW (90 min agent time; Must ≈ 60 min)
 - **Must:** JSON ingest + frozen models + normalize; R-001, R-002, R-003, R-004; H-001, H-002 (MPN), H-003; scoring; pipeline with stable sort; CLI + JSON report + markdown summary; property tests (AC11–AC14); golden fixture; `make demo`.
-- **Should:** A-001 via `Suggester` Protocol + `StubSuggester` + guardrails (allowlist, schema validation, confidence cap 0.6). Built only if on schedule at T+65.
+- **Should:** A-001 via `Suggester` Protocol + `StubSuggester` + guardrails (allowlist, schema validation, confidence cap 0.6). Built after the box with the extra human time, opt-in via `--suggest` (DECISIONS #20).
 - **Could:** CSV ingest; description-similarity duplicates; `review.py` decision → audit log; FastAPI `POST /review`; abbreviation map.
 - **Won't:** real LLM/network, DB, UI, auto-apply of suggestions, translation, auth.
 
