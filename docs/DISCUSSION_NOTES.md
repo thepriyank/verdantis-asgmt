@@ -2,11 +2,11 @@
 
 Short answers to the brief's 8 discussion topics, tied to this codebase.
 
-1. **Introducing a real LLM safely** —
-2. **Data never sent to an external AI service** —
-3. **Validating AI output before users see it** —
-4. **Keeping AI-generated code from lowering quality** —
-5. **CI checks required before merge** —
-6. **Deterministic rule vs. AI-assisted suggestion** —
-7. **Tracking confidence, explanation, audit history** —
-8. **Guiding a team using AI coding tools** —
+1. **Introducing a real LLM safely** — Behind the `Suggester` Protocol (design in ARCHITECTURE.md; not built here). Start in shadow mode: the model runs, its output is logged and scored against steward decisions, but stewards don't see it. Then show it as `ai_assisted_candidate` with a confidence cap of 0.6, `needs_review` only, never auto-applied. Add timeouts, retries, a kill switch that falls back to the stub, and cost/latency logging.
+2. **Data never sent to an external AI service** — Only an allowlist of fields (`item_description`, `manufacturer`, `category`, `unit_of_measure`) would leave. Never `source_system` internals, prices, user names, supplier terms or free-text notes, and no rows that failed R-001. Record text is passed as delimited data, never as instructions (prompt-injection defence). Contractually: no training on our data and a region-pinned endpoint.
+3. **Validating AI output before users see it** — Parse into a strict Pydantic model (`extra="forbid"`), require an explanation, clamp confidence to the cap, and drop anything that contradicts a deterministic rule (for example a UoM outside the allowlist). On any failure there is no candidate, only a log line. Plus an offline eval set of steward-labelled records, run on every prompt or model change.
+4. **Keeping AI-generated code from lowering quality** — Spec and acceptance criteria before code; failing tests first; mypy strict, ruff, 90% coverage on rules and heuristics; golden and property tests; a hook that blocks edits to red-zone files; and an independent red-team agent plus mutation checks. In this repo the red-team found three real defects that the author's own tests missed.
+5. **CI checks required before merge** — `ruff check`, `ruff format --check`, `mypy --strict dq`, `pytest` with a coverage floor, the golden test, the property tests (no mutation, banned language, schema, determinism), a secret scan, and CODEOWNERS review on red-zone paths (golden file, CI config, policy). Already in `.github/workflows/ci.yml`: lint, types and tests.
+6. **Deterministic rule vs AI-assisted suggestion** — If two stewards would always agree given the data, it is a rule (R-001 to R-004). If a simple, explainable signal usually agrees with them, it is a heuristic with confidence below 1 (H-001 to H-003). If it needs language generation or world knowledge, it is AI, capped and reviewed (A-001). Anything checkable by logic never goes to a model.
+7. **Tracking confidence, explanation, audit history** — Every candidate already carries `confidence`, `explanation`, `evidence`, `source`, `rule_id` and `rule_version`, with a stable `finding_id`. Next: an append-only decision log (finding_id, reviewer, action, timestamp, rule_version, model and prompt version for AI findings), used to measure acceptance rate per rule and to retune thresholds. Source records are never edited.
+8. **Guiding a team using AI coding tools** — A checked-in operating manual (`CLAUDE.md`), a zone policy (green/amber/red), slash commands for the repeated workflows (`/kickoff`, `/slice`, `/redteam`, `/review`, `/ship`), review subagents, a usage log per change, and small test-first slices. Humans own product behaviour, thresholds and the golden file; the AI drafts and the tests and the red-team verify.
