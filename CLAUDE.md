@@ -6,7 +6,7 @@
 
 ## 0. Context
 
-- **What:** a time-boxed (3 h) assignment for Verdantis — *Agentic Coding Lead, MRO360*.
+- **What:** a time-boxed (2 h) assignment for Verdantis — *Agentic Coding Lead, MRO360*.
 - **Product slice:** an **item-master data-quality assistant**. Input: item records from several source systems (JSON/CSV). Output: structured **review candidates** for a human data steward. It **never modifies records**; a human approves, rejects or investigates.
 - **What reviewers judge:** how we plan, what we delegate to AI, what the human verifies, assumptions, tests, trade-offs. Correctness > breadth. Explainability > cleverness. Human-review safety > automation. Tests > features. Clean boundaries > lots of code.
 
@@ -22,7 +22,7 @@
 8. **Deterministic first.** Rules are pure, deterministic and cover anything checkable by logic. Heuristics handle fuzzy signals. The AI layer is a stub behind an interface and can only *suggest*.
 9. **Every finding says where it came from:** `source` ∈ `deterministic_rule | heuristic | ai_assisted_candidate`, plus `rule_id` and `rule_version`.
 10. **No assumptions hidden in code.** Thresholds, keyword lists and allowed UoMs live in `config/` and are documented. Unclear requirement → simplest reasonable reading, logged in `docs/DECISIONS.md`.
-11. **Time-box.** Anything 20 min over plan → stop, log in README "Known limitations", cut scope.
+11. **Time-box.** Anything 5 min over a slice's budget → stop, log in README "Known limitations", cut scope.
 
 ## 2. Stack
 
@@ -152,8 +152,8 @@ Output = `{"summary": {...counts by issue/severity/source...}, "candidates": [..
 
 ## 9. Git standards
 
-- Conventional Commits (`feat:`, `test:`, `fix:`, `docs:`, `refactor:`, `chore:`). One slice = one or a few commits; target 10–20 commits.
-- Branch per slice `feat/<slice>` → PR with `.github/pull_request_template.md` → human merges. After 1:50 on the clock, commit straight to `main` and log that in DECISIONS.md.
+- Conventional Commits (`feat:`, `test:`, `fix:`, `docs:`, `refactor:`, `chore:`). One slice = one commit (a few at most); target 6–10 commits.
+- Because of the 2 h box (20 min spent before kickoff, last 10 min reserved for the human's final look), there are no branches or PRs: commit each slice straight to `main` after `make check` is green. Logged in DECISIONS.md #0.
 - Never commit `.env`, caches, or generated output (except the golden fixture).
 - Final tag: `v1.0-submission`.
 
@@ -195,7 +195,7 @@ The golden file is red-zone on purpose: an agent must never "fix" a failing gold
 5. **Scope:** only slice files touched; no red-zone edits; no new deps without reason.
 6. **AI layer:** allowlist enforced; output validated; confidence capped.
 
-Record findings in the PR and one line in `docs/AI_USAGE.md`.
+Record findings in the commit message and one line in `docs/AI_USAGE.md`.
 
 ## 14. How Claude should work here
 
