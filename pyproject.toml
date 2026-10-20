@@ -1,0 +1,30 @@
+[project]
+name = "dq"
+version = "0.1.0"
+description = "Item-master data-quality assistant: produces review candidates for a human data steward"
+requires-python = ">=3.12"
+dependencies = ["pydantic>=2.7"]
+
+[dependency-groups]
+dev = ["pytest>=8", "pytest-cov>=5", "ruff>=0.6", "mypy>=1.11"]
+
+[tool.uv]
+# Run from the repo root with `python -m dq`; no installable package needed.
+package = false
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = [".claude"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+
+[tool.mypy]
+strict = true
+plugins = ["pydantic.mypy"]
+files = ["dq"]
