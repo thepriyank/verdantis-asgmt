@@ -26,11 +26,17 @@ class Config(BaseModel):
     required_fields: tuple[str, ...]
     allowed_uoms: frozenset[str]
     uom_aliases: dict[str, str]
+    vague_max_tokens: int
+    generic_nouns: frozenset[str]
+    category_keywords: dict[str, tuple[str, ...]]
     rule_versions: dict[str, str]
     scoring: dict[str, Policy]
 
 
 def load_config(path: Path | None = None) -> Config:
-    data = json.loads((path or DEFAULT_CONFIG_PATH).read_text(encoding="utf-8"))
+    rules_path = path or DEFAULT_CONFIG_PATH
+    data = json.loads(rules_path.read_text(encoding="utf-8"))
     data.pop("_comment", None)
+    keywords = json.loads((rules_path.parent / "category_keywords.json").read_text("utf-8"))
+    data["category_keywords"] = keywords["keywords"]
     return Config.model_validate(data)

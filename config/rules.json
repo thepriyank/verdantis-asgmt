@@ -9,7 +9,12 @@
     "kgs": "KG", "kilogram": "KG", "gram": "G", "ltr": "L", "litre": "L", "liter": "L",
     "mtr": "M", "meter": "M", "metre": "M", "inch": "IN", "foot": "FT", "feet": "FT"
   },
-  "rule_versions": {"R-001": "1", "R-002": "1", "R-003": "1", "R-004": "1"},
+  "vague_max_tokens": 2,
+  "generic_nouns": ["bearing", "valve", "pump", "motor", "bolt", "nut", "seal", "gasket", "fuse", "cable", "filter", "hose", "pipe", "gear", "shaft", "coupling", "relay", "switch", "sensor", "part", "item", "spare", "tool", "kit"],
+  "rule_versions": {
+    "R-001": "1", "R-002": "1", "R-003": "1", "R-004": "1",
+    "H-001": "1", "H-002": "1", "H-003": "1"
+  },
   "scoring": {
     "R-001.malformed_row": {"severity": "high", "confidence": 1.0},
     "R-001.no_item_id": {"severity": "high", "confidence": 1.0},
@@ -18,6 +23,10 @@
     "R-003.conflicting": {"severity": "high", "confidence": 1.0},
     "R-003.identical": {"severity": "medium", "confidence": 1.0},
     "R-004.unknown": {"severity": "medium", "confidence": 1.0},
-    "R-004.alias": {"severity": "low", "confidence": 0.9}
+    "R-004.alias": {"severity": "low", "confidence": 0.9},
+    "H-001.single_noun": {"severity": "medium", "confidence": 0.85},
+    "H-001.sparse": {"severity": "low", "confidence": 0.6},
+    "H-002.same_mpn": {"severity": "medium", "confidence": 0.9},
+    "H-003.mismatch": {"severity": "low", "confidence": 0.7}
   }
 }

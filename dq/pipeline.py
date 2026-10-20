@@ -12,6 +12,11 @@ from typing import Any
 from pydantic import BaseModel, ConfigDict
 
 from dq.config import Config
+from dq.heuristics import (
+    h001_vague_description,
+    h002_potential_duplicate,
+    h003_category_mismatch,
+)
 from dq.models import ParsedRecord, ParseIssue, ReviewCandidate, Severity
 from dq.rules import r001_incomplete, r002_missing_mpn, r003_duplicate_id, r004_uom
 
@@ -23,6 +28,9 @@ CHECKS: tuple[Check, ...] = (
     r002_missing_mpn.check,
     r003_duplicate_id.check,
     r004_uom.check,
+    h001_vague_description.check,
+    h002_potential_duplicate.check,
+    h003_category_mismatch.check,
 )
 
 _SEVERITY_RANK = {Severity.HIGH: 0, Severity.MEDIUM: 1, Severity.LOW: 2}
