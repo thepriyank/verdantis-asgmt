@@ -7,6 +7,7 @@ import sys
 from collections.abc import Sequence
 from pathlib import Path
 
+from dq.ai.stub import StubSuggester
 from dq.config import load_config
 from dq.ingest import IngestError, load_file
 from dq.pipeline import run_review
@@ -23,6 +24,11 @@ def _parser() -> argparse.ArgumentParser:
     review.add_argument("input", type=Path, help="JSON file containing an array of item records")
     review.add_argument("-o", "--output", type=Path, help="write JSON here (default: stdout)")
     review.add_argument("--report", type=Path, help="also write a markdown summary here")
+    review.add_argument(
+        "--suggest",
+        action="store_true",
+        help="add AI-assisted description suggestions (offline stub; suggestions only)",
+    )
     return parser
 
 
@@ -39,7 +45,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     except IngestError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return EXIT_BAD_INPUT
-    result = run_review(ingest.records, ingest.parse_issues, cfg)
+    suggester = StubSuggester(cfg) if args.suggest else None
+    result = run_review(ingest.records, ingest.parse_issues, cfg, suggester)
     payload = to_json(result)
     try:
         if args.output:

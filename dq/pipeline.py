@@ -11,6 +11,8 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict
 
+from dq.ai import a001_suggestion
+from dq.ai.suggester import Suggester
 from dq.config import Config
 from dq.heuristics import (
     h001_vague_description,
@@ -60,9 +62,15 @@ def _count(values: Sequence[str]) -> dict[str, int]:
 
 
 def run_review(
-    records: Sequence[ParsedRecord], parse_issues: Sequence[ParseIssue], cfg: Config
+    records: Sequence[ParsedRecord],
+    parse_issues: Sequence[ParseIssue],
+    cfg: Config,
+    suggester: Suggester | None = None,
 ) -> ReviewResult:
     found = [c for check in CHECKS for c in check(records, cfg)]
+    # The AI layer is opt-in and runs after the rules; it can only add suggestions.
+    if suggester is not None:
+        found += a001_suggestion.check_with(suggester, records, cfg)
     candidates = tuple(sorted(found, key=_sort_key))
     summary = {
         "total_records": len(records),

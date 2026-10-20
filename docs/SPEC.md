@@ -33,8 +33,9 @@ Read item-master records from several source systems and produce **structured re
 
 ## CLI surface
 ```
-python -m dq review <input.json> [-o out.json] [--report out.md]
+python -m dq review <input.json> [-o out.json] [--report out.md] [--suggest]
 ```
+`--suggest` (off by default) runs the AI-assisted stub and adds A-001 candidates.
 - Writes the JSON to stdout when `-o` is not given. `--report` writes a short markdown summary for the steward.
 - Exit 0 on success, including empty input (`[]` → empty candidates + message on stderr).
 - Exit 2 on an unreadable file, invalid JSON, or a top level that is not an array (clean message, no traceback).
@@ -72,7 +73,7 @@ Brief #8 (confidence + severity) and #9 (explanation) are part of every candidat
 | AC14 | Determinism (I4) | **Given** the same input twice **when** reviewed **then** the JSON output is identical | `tests/properties/test_determinism.py` | [x] |
 | AC15 | Golden fixture (R8) | **Given** `data/samples/edge_cases.json` **when** reviewed **then** output exactly matches `tests/golden/expected_output.json` | `tests/golden/test_golden.py` | [x] |
 | AC16 | CLI errors (R5, I6) | **Given** `[]` / a missing path / invalid JSON **when** the CLI runs **then** exit 0 + message / exit 2 / exit 2, no traceback | `tests/unit/test_cli.py` | [x] |
-| AC17 | *(Should)* A-001 AI stub (6, R9) | **Given** a vague description **when** reviewed **then** A-001 with confidence ≤ 0.6 and source `ai_assisted_candidate`; only allowlisted fields reach the suggester; invalid suggester output → no candidate | `tests/unit/test_ai_guardrails.py` | [ ] |
+| AC17 | *(Should)* A-001 AI stub (6, R9) | **Given** a vague description **when** reviewed **then** A-001 with confidence ≤ 0.6 and source `ai_assisted_candidate`; only allowlisted fields reach the suggester; invalid suggester output → no candidate | `tests/unit/test_ai_guardrails.py` | [x] |
 
 ## Edge cases covered (from the brief)
 | Edge case | Where |

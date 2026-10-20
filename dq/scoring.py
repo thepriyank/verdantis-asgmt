@@ -29,15 +29,18 @@ def make_candidate(
     source: Source,
     suggested_value: str | None = None,
     related_item_ids: Sequence[str] = (),
+    confidence: float | None = None,
 ) -> ReviewCandidate:
     policy = cfg.scoring[policy_key]
+    # A caller-supplied confidence (AI output) can only lower the policy value, never raise it.
+    final = policy.confidence if confidence is None else min(confidence, policy.confidence)
     return ReviewCandidate(
         finding_id=finding_id(rule_id, rec),
         item_id=rec.item_id,
         record_ref=RecordRef(source_system=rec.source_system, row_index=rec.row_index),
         issue_type=issue_type,
         severity=policy.severity,
-        confidence=policy.confidence,
+        confidence=final,
         explanation=explanation,
         evidence=evidence,
         suggested_action=suggested_action,

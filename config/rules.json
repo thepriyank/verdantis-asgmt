@@ -11,9 +11,15 @@
   },
   "vague_max_tokens": 2,
   "generic_nouns": ["bearing", "valve", "pump", "motor", "bolt", "nut", "seal", "gasket", "fuse", "cable", "filter", "hose", "pipe", "gear", "shaft", "coupling", "relay", "switch", "sensor", "part", "item", "spare", "tool", "kit"],
+  "ai_confidence_cap": 0.6,
+  "ai_abbreviations": {
+    "brg": "Bearing", "vlv": "Valve", "blt": "Bolt", "mtr": "Motor", "pmp": "Pump",
+    "fltr": "Filter", "gskt": "Gasket", "sw": "Switch", "cbl": "Cable", "rly": "Relay",
+    "cplg": "Coupling", "sft": "Shaft"
+  },
   "rule_versions": {
     "R-001": "1", "R-002": "1", "R-003": "1", "R-004": "1",
-    "H-001": "1", "H-002": "1", "H-003": "1"
+    "H-001": "1", "H-002": "1", "H-003": "1", "A-001": "1"
   },
   "scoring": {
     "R-001.malformed_row": {"severity": "high", "confidence": 1.0},
@@ -27,6 +33,7 @@
     "H-001.single_noun": {"severity": "medium", "confidence": 0.85},
     "H-001.sparse": {"severity": "low", "confidence": 0.6},
     "H-002.same_mpn": {"severity": "medium", "confidence": 0.9},
-    "H-003.mismatch": {"severity": "low", "confidence": 0.7}
+    "H-003.mismatch": {"severity": "low", "confidence": 0.7},
+    "A-001.suggestion": {"severity": "low", "confidence": 0.6}
   }
 }

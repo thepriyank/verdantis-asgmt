@@ -26,6 +26,8 @@ class Config(BaseModel):
     required_fields: tuple[str, ...]
     allowed_uoms: frozenset[str]
     uom_aliases: dict[str, str]
+    ai_confidence_cap: float
+    ai_abbreviations: dict[str, str]
     vague_max_tokens: int
     generic_nouns: frozenset[str]
     category_keywords: dict[str, tuple[str, ...]]
