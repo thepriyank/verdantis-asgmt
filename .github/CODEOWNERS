@@ -1,0 +1,8 @@
+# Red-zone paths (docs/AGENT_POLICY.md) always need the owner's review; AI agents only propose.
+*                                  @thepriyank
+/CLAUDE.md                         @thepriyank
+/.claude/                          @thepriyank
+/docs/AGENT_POLICY.md              @thepriyank
+/.github/                          @thepriyank
+/tests/golden/expected_output.json @thepriyank
+/.env.example                      @thepriyank

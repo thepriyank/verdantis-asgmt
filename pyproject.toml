@@ -20,6 +20,10 @@ package = false
 pythonpath = ["."]
 testpaths = ["tests"]
 
+[tool.coverage.report]
+# Enforced whenever pytest runs with --cov (make test / make check / CI).
+fail_under = 95
+
 [tool.ruff]
 line-length = 100
 target-version = "py312"

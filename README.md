@@ -19,6 +19,12 @@ uv run pytest -q --cov=dq
 ```
 CLI: `python -m dq review <input.json> [-o out.json] [--report out.md] [--suggest]`. `--suggest` adds AI-assisted description suggestions from an offline stub; it is off by default. JSON goes to stdout when `-o` is omitted. Exit codes: `0` success (including empty input), `2` unreadable file, invalid JSON, a top level that is not an array, or an output path equal to the input. Runs fully offline.
 
+Record human decisions (intent only; nothing is modified):
+```
+uv run python -m dq apply-decisions out/review.json decisions.json -o out/audit.json
+```
+`decisions.json` is `[{"finding_id": "...", "decision": "approve|reject|investigate", "reviewer": "name", "note": "optional"}]`. The audit log pairs each decision with the finding, rule version and evidence it was made on, and marks `change_applied: false`. Unknown ids and invalid decisions are listed under `errors`, not raised.
+
 ## Sample input → output
 Input (the brief's two records):
 ```json
@@ -58,7 +64,7 @@ A full candidate carries `finding_id`, `record_ref`, `evidence`, `suggested_acti
 - **One policy place:** severity and confidence come only from `dq/scoring.py` and `config/rules.json`. UoM allowlist, aliases, generic nouns and category keywords live in `config/`.
 
 ## Tests and verification
-- **180 tests, 99% coverage of `dq/`** (100% of `dq/rules`, `dq/heuristics`, `dq/normalize.py`; `dq/ai/stub.py` is 94%; only `__main__.py` and the CLI's write-error path are uncovered); ruff clean; mypy strict clean.
+- **204 tests, 98.5% coverage of `dq/`, enforced at a 95% floor (`fail_under` in `pyproject.toml`)** (100% of `dq/rules`, `dq/heuristics`, `dq/normalize.py`; `dq/ai/stub.py` is 94%; only `__main__.py` and the CLI's write-error path are uncovered); ruff clean; mypy strict clean.
 - Unit tests per check (positive, negative, blank/null/malformed edge cases), property tests, a golden test (`data/samples/edge_cases.json` → `tests/golden/expected_output.json`), the brief's example, CLI exit-code tests, and regression tests for every red-team finding.
 - Mutation checks: I broke the logic by hand after each slice and confirmed a test fails. An independent red-team agent then tried 41 mutations; 7 survived (5 real gaps now covered, 2 equivalent). Details in [docs/AI_USAGE.md](docs/AI_USAGE.md).
 - The golden file is red-zone: a human reviews it and regenerates it; an agent never rewrites it to go green.
@@ -75,7 +81,7 @@ Full log: [docs/DECISIONS.md](docs/DECISIONS.md). The ones that matter most:
 Claude Code, steered by `CLAUDE.md` (standards), `docs/AGENT_POLICY.md` (zones: green/amber/red) and a hook that blocks red-zone edits. I wrote the spec and acceptance criteria first, had the AI draft tests and code per slice, and verified with tests, mutation checks and an independent red-team agent. The red-team found three real defects my own tests missed (crash on deeply nested JSON, `-o` able to overwrite the input, a taxonomy assumption in H-003). What was delegated, rejected and changed: [docs/AI_USAGE.md](docs/AI_USAGE.md). Prepared answers to the discussion topics: [docs/DISCUSSION_NOTES.md](docs/DISCUSSION_NOTES.md).
 
 ## Status
-- **Works now:** JSON ingest, seven checks (R-001 to R-004, H-001 to H-003), scoring, sorted deterministic JSON output, markdown steward report, CLI with clean exit codes, the opt-in A-001 stub suggester with guardrails, 180 tests.
-- **Incomplete:** a real LLM provider (only the offline stub exists), `dq/review.py` is a placeholder, CSV input, description-similarity duplicates, decision/audit log, HTTP API. Not tested: very large files (the whole file is read into memory).
+- **Works now:** JSON ingest, seven checks (R-001 to R-004, H-001 to H-003), scoring, sorted deterministic JSON output, markdown steward report, CLI with clean exit codes, the opt-in A-001 stub suggester with guardrails, the steward decision → audit log command, 204 tests.
+- **Incomplete:** a real LLM provider (only the offline stub exists), CSV input, description-similarity duplicates, HTTP API, CI secret-scan step (a pytest scan runs instead; `ci.yml` is red-zone). Not tested: very large files (the whole file is read into memory).
 - **Risks:** word lists are English-only, so non-English or abbreviation-heavy text is missed (for example "Rodamiento de bolas" in the wrong category is not flagged). H-003 assumes the Mechanical/Electrical/Piping taxonomy. A row with an unsupported field type gets only its R-001 finding until it is resent. Manufacturer matching is trim and case-fold only.
-- **Next steps:** add `AnthropicSuggester` behind the same Protocol as designed in ARCHITECTURE.md (timeouts, retries, cost logging, eval set); add CSV ingest; add fuzzy duplicate detection and manufacturer canonicalisation; add a steward decision log; evaluate the heuristics on real steward-labelled data and tune thresholds.
+- **Next steps:** add `AnthropicSuggester` behind the same Protocol as designed in ARCHITECTURE.md (timeouts, retries, cost logging, eval set); add CSV ingest; add fuzzy duplicate detection and manufacturer canonicalisation; feed the audit log back into per-rule precision tracking; evaluate the heuristics on real steward-labelled data and tune thresholds.
