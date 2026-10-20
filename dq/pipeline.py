@@ -13,12 +13,17 @@ from pydantic import BaseModel, ConfigDict
 
 from dq.config import Config
 from dq.models import ParsedRecord, ParseIssue, ReviewCandidate, Severity
-from dq.rules import r001_incomplete, r002_missing_mpn
+from dq.rules import r001_incomplete, r002_missing_mpn, r003_duplicate_id, r004_uom
 
 Check = Callable[[Sequence[ParsedRecord], Config], list[ReviewCandidate]]
 
 # Deterministic rules first; heuristics are added here as their slices land.
-CHECKS: tuple[Check, ...] = (r001_incomplete.check, r002_missing_mpn.check)
+CHECKS: tuple[Check, ...] = (
+    r001_incomplete.check,
+    r002_missing_mpn.check,
+    r003_duplicate_id.check,
+    r004_uom.check,
+)
 
 _SEVERITY_RANK = {Severity.HIGH: 0, Severity.MEDIUM: 1, Severity.LOW: 2}
 

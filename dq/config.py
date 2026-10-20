@@ -24,6 +24,8 @@ class Config(BaseModel):
 
     missing_tokens: frozenset[str]
     required_fields: tuple[str, ...]
+    allowed_uoms: frozenset[str]
+    uom_aliases: dict[str, str]
     rule_versions: dict[str, str]
     scoring: dict[str, Policy]
 
