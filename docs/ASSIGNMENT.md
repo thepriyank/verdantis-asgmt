@@ -1,4 +1,4 @@
-<!-- Brief as received (converted from the .docx, wording unchanged). Received: ____  Deadline: ____ -->
+<!-- Brief as received (converted from the .docx, wording unchanged). Received: 3:15 pm  Deadline: 5:30 pm -->
 
 # Agentic Coding Lead — Candidate Assignment
 
