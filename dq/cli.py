@@ -2,6 +2,7 @@
 
 python -m dq review <input.json> [-o out.json] [--report out.md] [--suggest]
 python -m dq apply-decisions <review.json> <decisions.json> [-o audit.json] [--decided-at TS]
+python -m dq eval-suggester [--cases cases.json]
 """
 
 from __future__ import annotations
@@ -12,6 +13,7 @@ from collections.abc import Sequence
 from datetime import UTC, datetime
 from pathlib import Path
 
+from dq.ai.evaluate import load_cases, run_eval
 from dq.ai.stub import StubSuggester
 from dq.config import load_config
 from dq.ingest import IngestError, load_file
@@ -20,7 +22,11 @@ from dq.report import to_json, to_markdown
 from dq.review import ReviewFileError, build_audit_log, read_json, to_json_text
 
 EXIT_OK = 0
+EXIT_GATE_FAILED = 1
 EXIT_BAD_INPUT = 2
+DEFAULT_EVAL_CASES = (
+    Path(__file__).resolve().parent.parent / "data" / "eval" / "suggester_cases.json"
+)
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -42,6 +48,8 @@ def _parser() -> argparse.ArgumentParser:
         "-o", "--output", type=Path, help="write the audit log here (default: stdout)"
     )
     apply.add_argument("--decided-at", help="ISO timestamp for the log (default: now, UTC)")
+    ev = sub.add_parser("eval-suggester", help="run the offline eval gate on the AI suggester")
+    ev.add_argument("--cases", type=Path, default=DEFAULT_EVAL_CASES, help="eval cases JSON")
     return parser
 
 
@@ -106,6 +114,18 @@ def _run_apply(args: argparse.Namespace) -> int:
     return EXIT_OK
 
 
+def _run_eval(args: argparse.Namespace) -> int:
+    cfg = load_config()
+    try:
+        cases = load_cases(args.cases)
+    except (OSError, ValueError) as exc:
+        return _fail(f"cannot use eval cases {args.cases}: {exc}")
+    report = run_eval(StubSuggester(cfg), cases, cfg)
+    sys.stdout.write(report.model_dump_json(indent=2) + "\n")
+    return EXIT_OK if report.passed else EXIT_GATE_FAILED
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     args = _parser().parse_args(argv)
-    return _run_review(args) if args.command == "review" else _run_apply(args)
+    handlers = {"review": _run_review, "apply-decisions": _run_apply, "eval-suggester": _run_eval}
+    return handlers[args.command](args)

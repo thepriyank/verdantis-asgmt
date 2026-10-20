@@ -20,7 +20,7 @@ flowchart LR
 
 **Boundaries.** The dependency direction is `cli → pipeline → (rules, heuristics, ai) → normalize, models, scoring`. `rules/` never imports `ai/` or `heuristics/`, so the deterministic layer can be tested and trusted on its own. The AI path (dashed in spirit) is a *Should*. If it is absent or fails, the pipeline still produces every rule and heuristic finding.
 
-**Status:** the audit-log step is implemented as `python -m dq apply-decisions` (`dq/review.py`). `dq/ai/` is implemented with an offline `StubSuggester` and the guardrails below; it runs only when the CLI is given `--suggest`. No real provider is wired in.
+**Status:** the audit-log step is implemented as `python -m dq apply-decisions` (`dq/review.py`). an offline eval gate for suggesters (`dq/ai/evaluate.py`, `python -m dq eval-suggester`) runs in pytest. `dq/ai/` is implemented with an offline `StubSuggester` and the guardrails below; it runs only when the CLI is given `--suggest`. No real provider is wired in.
 
 ## Data flow
 1. **Ingest** (`dq/ingest.py`) loads the file. An unreadable file, invalid JSON or a non-array top level raises a clean error → CLI exit 2. Each element becomes a frozen `ParsedRecord`, which keeps both raw values (for evidence) and normalized values. A non-object element becomes a `parse_issue`, and R-001 later turns it into a candidate. Ingest never raises on a bad *row*.

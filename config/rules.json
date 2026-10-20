@@ -12,6 +12,8 @@
   "vague_max_tokens": 2,
   "generic_nouns": ["bearing", "valve", "pump", "motor", "bolt", "nut", "seal", "gasket", "fuse", "cable", "filter", "hose", "pipe", "gear", "shaft", "coupling", "relay", "switch", "sensor", "part", "item", "spare", "tool", "kit"],
   "ai_confidence_cap": 0.6,
+  "ai_eval_min_accuracy": 1.0,
+  "ai_eval_max_false_suggestions": 0,
   "ai_abbreviations": {
     "brg": "Bearing", "vlv": "Valve", "blt": "Bolt", "mtr": "Motor", "pmp": "Pump",
     "fltr": "Filter", "gskt": "Gasket", "sw": "Switch", "cbl": "Cable", "rly": "Relay",

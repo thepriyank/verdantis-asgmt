@@ -39,6 +39,11 @@ python -m dq review <input.json> [-o out.json] [--report out.md] [--suggest]
 ```
 python -m dq apply-decisions <review.json> <decisions.json> [-o audit.json] [--decided-at TS]
 ```
+```
+python -m dq eval-suggester [--cases cases.json]
+```
+Runs the suggester over `data/eval/suggester_cases.json` and exits 0 (gate passed), 1 (accuracy or false-suggestion limit missed) or 2 (unusable cases file).
+
 Records reviewer decisions (approve / reject / investigate) in an append-only audit log; exit 2 on unusable files or an output path equal to an input.
 - Writes the JSON to stdout when `-o` is not given. `--report` writes a short markdown summary for the steward.
 - Exit 0 on success, including empty input (`[]` → empty candidates + message on stderr).

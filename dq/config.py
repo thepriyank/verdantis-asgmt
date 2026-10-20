@@ -27,6 +27,8 @@ class Config(BaseModel):
     allowed_uoms: frozenset[str]
     uom_aliases: dict[str, str]
     ai_confidence_cap: float
+    ai_eval_min_accuracy: float
+    ai_eval_max_false_suggestions: int
     ai_abbreviations: dict[str, str]
     vague_max_tokens: int
     generic_nouns: frozenset[str]
