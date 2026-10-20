@@ -8,14 +8,14 @@ Read item-master records from several source systems and produce **structured re
 - Database, UI, auth, multi-user workflow.
 - Applying any suggestion to data (no auto-correct, ever).
 - Translation or abbreviation expansion of non-English text.
-- CSV ingest, description-similarity duplicates, decision/audit log, HTTP API (Could, see MoSCoW).
+- CSV ingest, description-similarity duplicates, HTTP API (Could, see MoSCoW). Not built.
 
 ## Input contract
 - A JSON file whose top level is an **array of objects**.
 - Fields: `item_id`, `item_description`, `manufacturer`, `manufacturer_part_number`, `category`, `unit_of_measure`, `source_system`. Unknown extra fields are ignored and never passed to the AI layer.
 - **Required:** `item_id`, `item_description`, `unit_of_measure`, `source_system` (DECISIONS #2).
 - **Missing** = `None`, `""`, whitespace-only, or `"null"` / `"n/a"` / `"na"` / `"-"` (case-insensitive). Raw values are kept as evidence (DECISIONS #10).
-- A numeric `item_id` is accepted as a string. A list/dict value, or a non-object element, becomes a `parse_issue` + R-001 high (DECISIONS #11).
+- A numeric `item_id` is accepted as a string. A list, dict, bool or NaN value, or a non-object element, becomes a `parse_issue` + R-001 high; no other check reports on that row (DECISIONS #11, #18).
 - Records are parsed into **frozen** Pydantic models. The input object is never mutated.
 
 ## Output contract (see CLAUDE.md §5)
@@ -35,19 +35,21 @@ Read item-master records from several source systems and produce **structured re
 ```
 python -m dq review <input.json> [-o out.json] [--report out.md] [--suggest]
 ```
-`--suggest` (off by default) runs the AI-assisted stub and adds A-001 candidates.
+- Writes the JSON to stdout when `-o` is not given. `--report` writes a short markdown summary for the steward.
+- `--suggest` (off by default) runs the offline AI-assisted stub and adds A-001 candidates.
+- Exit 0 on success, including empty input (`[]` -> empty candidates + message on stderr).
+- Exit 2 on an unreadable file, invalid JSON, a top level that is not an array, or an output path equal to the input (clean message, no traceback).
+
 ```
 python -m dq apply-decisions <review.json> <decisions.json> [-o audit.json] [--decided-at TS]
 ```
+- Records reviewer decisions (approve / reject / investigate) in an append-only audit log. Intent only: `change_applied` is always false and no record is edited (DECISIONS #22).
+- Exit 2 on unusable files or an output path equal to an input. Bad decisions are listed under `errors`; exit stays 0.
+
 ```
 python -m dq eval-suggester [--cases cases.json]
 ```
-Runs the suggester over `data/eval/suggester_cases.json` and exits 0 (gate passed), 1 (accuracy or false-suggestion limit missed) or 2 (unusable cases file).
-
-Records reviewer decisions (approve / reject / investigate) in an append-only audit log; exit 2 on unusable files or an output path equal to an input.
-- Writes the JSON to stdout when `-o` is not given. `--report` writes a short markdown summary for the steward.
-- Exit 0 on success, including empty input (`[]` → empty candidates + message on stderr).
-- Exit 2 on an unreadable file, invalid JSON, or a top level that is not an array (clean message, no traceback).
+- Runs the suggester over `data/eval/suggester_cases.json` and exits 0 (gate passed), 1 (accuracy or false-suggestion limit missed) or 2 (unusable cases file) (DECISIONS #24).
 
 ## Check catalogue (CLAUDE.md §4)
 | ID | Brief # | Check | Source | Severity | Confidence |
@@ -59,7 +61,7 @@ Records reviewer decisions (approve / reject / investigate) in an append-only au
 | H-001 | 2 | Weak / vague description | heuristic | low · medium | 0.6–0.85 |
 | H-002 | 3 | Potential duplicate across rows (mfr + canonical MPN) | heuristic | medium | 0.9 |
 | H-003 | 4 | Category mismatch candidate | heuristic | low | 0.70 |
-| A-001 | 6 | Normalized description suggestion (stub, **Should**) | ai_assisted_candidate | low | ≤ 0.6 |
+| A-001 | 6 | Normalized description suggestion (offline stub, opt-in `--suggest`) | ai_assisted_candidate | low | ≤ 0.6 |
 
 Brief #8 (confidence + severity) and #9 (explanation) are part of every candidate, set centrally in `dq/scoring.py`.
 
@@ -76,13 +78,18 @@ Brief #8 (confidence + severity) and #9 (explanation) are part of every candidat
 | AC8 | H-002 potential duplicate (3) | **Given** ERP-A `SKF / "6205-ZZ"` and ERP-B `skf / "6205 zz"` with different item_ids **when** reviewed **then** `potential_duplicate` on both, confidence 0.9, each in the other's `related_item_ids` | `tests/unit/test_h002_duplicates.py` | [x] |
 | AC9 | H-003 category mismatch (4) | **Given** "SKF Bearing 6205 ZZ" with category Electrical **when** reviewed **then** H-003 low, confidence 0.70, evidence names the keyword "bearing"; with category Mechanical → none | `tests/unit/test_h003_category.py` | [x] |
 | AC10 | Brief example (R2) | **Given** the brief's 2-record example **when** reviewed **then** output contains `missing_part_number` for 1001 and `category_mismatch_candidate` for 1002 with the brief's severity/confidence | `tests/golden/test_brief_example.py` | [x] |
-| AC11 | No mutation (R7) | **Given** any input list **when** reviewed **then** it deep-equals its pre-run deep copy | `tests/properties/test_no_mutation.py` | [x] |
-| AC12 | Candidate language (R3) | **Given** any input **when** reviewed **then** the serialized output (and the JSON/markdown report) contains no banned word | `tests/properties/test_banned_language.py` | [x] |
-| AC13 | Schema + provenance (R2, R4) | **Given** any input **when** reviewed **then** every candidate validates against `ReviewCandidate`, has `status=="needs_review"`, a `source`, `rule_id` and `rule_version` | `tests/properties/test_schema.py` | [x] |
-| AC14 | Determinism (I4) | **Given** the same input twice **when** reviewed **then** the JSON output is identical | `tests/properties/test_determinism.py` | [x] |
+| AC11 | No mutation (R7) | **Given** any input list **when** reviewed **then** it deep-equals its pre-run deep copy | `tests/properties/test_properties.py::test_input_is_not_mutated` | [x] |
+| AC12 | Candidate language (R3) | **Given** any input **when** reviewed **then** the serialized output (and the JSON/markdown report) contains no banned word | `tests/properties/test_properties.py` (banned language, outputs and source) | [x] |
+| AC13 | Schema + provenance (R2, R4) | **Given** any input **when** reviewed **then** every candidate validates against `ReviewCandidate`, has `status=="needs_review"`, a `source`, `rule_id` and `rule_version` | `tests/properties/test_properties.py` (schema, `needs_review`, provenance) | [x] |
+| AC14 | Determinism (I4) | **Given** the same input twice **when** reviewed **then** the JSON output is identical | `tests/properties/test_properties.py::test_same_input_gives_identical_output` | [x] |
 | AC15 | Golden fixture (R8) | **Given** `data/samples/edge_cases.json` **when** reviewed **then** output exactly matches `tests/golden/expected_output.json` | `tests/golden/test_golden.py` | [x] |
 | AC16 | CLI errors (R5, I6) | **Given** `[]` / a missing path / invalid JSON **when** the CLI runs **then** exit 0 + message / exit 2 / exit 2, no traceback | `tests/unit/test_cli.py` | [x] |
-| AC17 | *(Should)* A-001 AI stub (6, R9) | **Given** a vague description **when** reviewed **then** A-001 with confidence ≤ 0.6 and source `ai_assisted_candidate`; only allowlisted fields reach the suggester; invalid suggester output → no candidate | `tests/unit/test_ai_guardrails.py` | [x] |
+| AC17 | A-001 AI stub (6, R9) | **Given** a vague description **when** reviewed **then** A-001 with confidence ≤ 0.6 and source `ai_assisted_candidate`; only allowlisted fields reach the suggester; invalid suggester output → no candidate | `tests/unit/test_ai_guardrails.py` | [x] |
+| AC18 | Steward decisions (brief: approve/reject/investigate) | **Given** a review file and a decisions file **when** `apply-decisions` runs **then** each valid decision becomes an audit entry with `change_applied: false`; unknown ids and invalid decisions go to `errors`; inputs are unchanged and never overwritten | `tests/unit/test_review.py` | [x] |
+| AC19 | AI input gating (discussion 2) | **Given** a row that fails R-001, or has an email, URL or international phone number in an allowlisted field **when** reviewed with `--suggest` **then** nothing from that row reaches the suggester; the prompt builder keeps record text inside one escaped data block | `tests/unit/test_ai_privacy.py` | [x] |
+| AC20 | AI eval gate (discussion 3) | **Given** the 12 cases in `data/eval/suggester_cases.json` **when** the stub is evaluated **then** accuracy is 1.0 with no false suggestions, provider errors or empty set, and a worse suggester fails the gate | `tests/unit/test_ai_eval.py` | [x] |
+| AC21 | Layer labelling (discussion 6) | **Given** the edge-case file with `--suggest` **when** reviewed **then** every `R-` finding is `deterministic_rule`, every `H-` is `heuristic`, every `A-` is `ai_assisted_candidate`, and rules and heuristics do not import `dq.ai` | `tests/properties/test_layers.py`, `tests/unit/test_architecture.py` | [x] |
+| AC22 | Red-zone hook (discussion 4, 8) | **Given** a red-zone path in a Windows absolute form **when** the guard hook runs **then** it blocks (exit 2) | `tests/unit/test_guard_hook.py` | [ ] strict xfail: hook fails open, human patch needed (DECISIONS #26) |
 
 ## Edge cases covered (from the brief)
 | Edge case | Where |
@@ -102,7 +109,7 @@ Brief #8 (confidence + severity) and #9 (explanation) are part of every candidat
 
 ## MoSCoW (90 min agent time; Must ≈ 60 min)
 - **Must:** JSON ingest + frozen models + normalize; R-001, R-002, R-003, R-004; H-001, H-002 (MPN), H-003; scoring; pipeline with stable sort; CLI + JSON report + markdown summary; property tests (AC11–AC14); golden fixture; `make demo`.
-- **Should:** A-001 via `Suggester` Protocol + `StubSuggester` + guardrails (allowlist, schema validation, confidence cap 0.6). Built after the box with the extra human time, opt-in via `--suggest` (DECISIONS #20).
+- **Should:** A-001 via `Suggester` Protocol + `StubSuggester` + guardrails (allowlist, schema validation, confidence cap 0.6). Built after the box with the extra human time, opt-in via `--suggest` (DECISIONS #20), together with row gating, a prompt builder and an offline eval gate (DECISIONS #24, #25).
 - **Could:** CSV ingest; description-similarity duplicates; FastAPI `POST /review`. (`review.py` decision → audit log was built afterwards with the extra time, DECISIONS #22.)
 - **Won't:** real LLM/network, DB, UI, auto-apply of suggestions, translation, auth.
 
@@ -114,4 +121,5 @@ Brief #8 (confidence + severity) and #9 (explanation) are part of every candidat
 | S3 | R-003 duplicate id, R-004 UoM | 10 min | AC5, AC6 |
 | S4 | H-001, H-002 (MPN), H-003 + keyword config | 12 min | AC7–AC10 |
 | S5 | Samples, edge-case fixture, markdown report, golden test, `make demo` | 8 min | AC15 |
-| S6 | *(Should)* AI stub + guardrails, A-001 | 10 min | AC17 |
+| S6 | *(Should)* AI stub + guardrails, A-001 | 10 min planned; built after the box | AC17 |
+| extra | Audit log, eval gate, AI input gating, quality gates (built after the box with the extra human time) | not budgeted | AC18-AC22 |

@@ -3,7 +3,7 @@
 > Verdantis Agentic Coding Lead assignment · built in a 2-hour time box with Claude Code.
 
 ## What it does
-Reads item master records (JSON) from several source systems and produces **review candidates**: structured, explainable findings a data steward can approve, reject or investigate. It **never modifies the records**. Every finding is `status: "needs_review"` and says whether it came from a deterministic rule or a heuristic.
+Reads item master records (JSON) from several source systems and produces **review candidates**: structured, explainable findings a data steward can approve, reject or investigate. It **never modifies the records**. Every finding is `status: "needs_review"` and says whether it came from a deterministic rule, a heuristic or (opt-in, offline stub) an AI-assisted suggestion.
 
 ## Run it
 ```
@@ -62,7 +62,7 @@ A full candidate carries `finding_id`, `record_ref`, `evidence`, `suggested_acti
 | 6 | Normalized description suggestion (stubbed AI, opt-in `--suggest`) | A-001 | ai_assisted_candidate | done (stub only; no real LLM) |
 
 ## Design
-- **Boundaries:** `cli → pipeline → (rules, heuristics) → normalize, models, scoring`. `rules/` is pure logic and never imports `heuristics/` or `ai/`. Diagram and the real-LLM plug-in plan: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+- **Boundaries:** `cli → pipeline → (rules, heuristics, ai) → normalize, models, scoring`. `rules/` is pure logic and never imports `heuristics/` or `ai/`. Diagram and the real-LLM plug-in plan: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 - **Rule vs heuristic:** a rule is decidable from the data (presence, exact keys, an allowlist). A heuristic is a judgement with a signal (vague text, same part number, keywords), so it carries confidence below 1 and says so in `source`.
 - **AI layer (stub):** `Suggester` Protocol in `dq/ai/`; only four allowlisted fields can be sent (`AllowlistedFields` forbids extras); responses are validated by a strict schema, confidence is capped at 0.6, identical or invalid output is dropped, and provider failures produce no candidate. Rules and heuristics never import `dq/ai/` (a test enforces it).
 - **Safety:** input is parsed into frozen models; a bad row becomes an R-001 finding, never an exception. Property tests prove no input mutation, no banned wording ("fixed", "corrected", "auto-approved"…), a valid schema with `needs_review`, and deterministic output.
@@ -79,11 +79,11 @@ Full log: [docs/DECISIONS.md](docs/DECISIONS.md). The ones that matter most:
 - Required fields are `item_id`, `item_description`, `unit_of_measure`, `source_system`; blank means `""`, whitespace, `null`, `n/a`, `na`, `-`.
 - Duplicate `item_id` is checked across all systems (high if values conflict, medium if identical).
 - The UoM list and aliases, the generic-noun list and the 3-category keyword map are **starter vocabularies** that need a steward's sign-off.
-- JSON only; CSV, fuzzy-description duplicates and the audit log were cut for time. The AI suggester is opt-in so the reviewed golden output stays stable.
+- JSON only; CSV and fuzzy-description duplicates were cut for time. The AI suggester and the decision audit log were built afterwards with the extra human time; the suggester is opt-in so the reviewed golden output stays stable.
 - Committed straight to `main` after each slice (no PR flow) because of the 2 h box.
 
 ## How I used AI
-Claude Code, steered by `CLAUDE.md` (standards), `docs/AGENT_POLICY.md` (zones: green/amber/red) and a hook that blocks red-zone edits. I wrote the spec and acceptance criteria first, had the AI draft tests and code per slice, and verified with tests, mutation checks and an independent red-team agent. The red-team found three real defects my own tests missed (crash on deeply nested JSON, `-o` able to overwrite the input, a taxonomy assumption in H-003). What was delegated, rejected and changed: [docs/AI_USAGE.md](docs/AI_USAGE.md). Prepared answers to the discussion topics: [docs/DISCUSSION_NOTES.md](docs/DISCUSSION_NOTES.md).
+Claude Code, steered by `CLAUDE.md` (standards), `docs/AGENT_POLICY.md` (zones: green/amber/red) and a hook meant to block red-zone edits (it fails open on Windows absolute paths until a human patches it, DECISIONS #26). I wrote the spec and acceptance criteria first, had the AI draft tests and code per slice, and verified with tests, mutation checks and an independent red-team agent. The red-team found three real defects my own tests missed (crash on deeply nested JSON, `-o` able to overwrite the input, a taxonomy assumption in H-003). What was delegated, rejected and changed: [docs/AI_USAGE.md](docs/AI_USAGE.md). Prepared answers to the discussion topics: [docs/DISCUSSION_NOTES.md](docs/DISCUSSION_NOTES.md).
 
 ## Status
 - **Works now:** JSON ingest, seven checks (R-001 to R-004, H-001 to H-003), scoring, sorted deterministic JSON output, markdown steward report, CLI with clean exit codes, the opt-in A-001 stub suggester with guardrails (row gating, contact-detail screen, delimited prompt builder), the steward decision → audit log command, an offline eval gate for the suggester, 252 tests.
