@@ -56,8 +56,8 @@ Brief #8 (confidence + severity) and #9 (explanation) are part of every candidat
 ## Requirements & acceptance criteria
 | ID | Requirement (brief #) | Acceptance criteria (Given / When / Then) | Test | Done |
 |----|-----------------------|--------------------------------------------|------|------|
-| AC1 | R-001 incomplete row (7) | **Given** a row whose `item_id` is `"  "` **when** reviewed **then** one R-001 candidate, severity high, evidence shows the raw `"  "` | `tests/unit/test_r001_incomplete.py` | [ ] |
-| AC2 | R-001 malformed row (7, R5) | **Given** an array with a string element between two valid rows **when** reviewed **then** a `parse_issue` and an R-001 high are emitted for it, and both valid rows are still checked | same | [ ] |
+| AC1 | R-001 incomplete row (7) | **Given** a row whose `item_id` is `"  "` **when** reviewed **then** one R-001 candidate, severity high, evidence shows the raw `"  "` | `tests/unit/test_r001_incomplete.py` | [x] |
+| AC2 | R-001 malformed row (7, R5) | **Given** an array with a string element between two valid rows **when** reviewed **then** a `parse_issue` and an R-001 high are emitted for it, and both valid rows are still checked | same | [x] |
 | AC3 | R-002 missing MPN (1) | **Given** manufacturer "SKF" and MPN `""` / `"n/a"` / `null` **when** reviewed **then** R-002, severity medium, confidence 0.95, explanation "Manufacturer is present but manufacturer part number is missing." | `tests/unit/test_r002_missing_mpn.py` | [ ] |
 | AC4 | R-002 negative | **Given** both manufacturer and MPN blank, or both present **when** reviewed **then** no R-002 | same | [ ] |
 | AC5 | R-003 duplicate id (3) | **Given** two rows with `item_id` 1001 and different descriptions **when** reviewed **then** R-003 high on each row, each listing the other in `related_item_ids`/evidence; identical copies → medium | `tests/unit/test_r003_duplicate_id.py` | [ ] |

@@ -1,9 +1,9 @@
 # Item Data-Quality Assistant — review candidates for a human data steward
 
-> Verdantis Agentic Coding Lead assignment · built in a 3-hour time box with Claude Code.
+> Verdantis Agentic Coding Lead assignment · built in a 2-hour time box with Claude Code.
 
 ## What it does
-Reads item master records (JSON/CSV) from several source systems and produces **review candidates** — structured, explainable findings a data steward can approve, reject or investigate. It **never modifies the records**.
+Reads item master records (JSON; CSV is a stretch goal) from several source systems and produces **review candidates** — structured, explainable findings a data steward can approve, reject or investigate. It **never modifies the records**.
 
 ## Run it
 ```
@@ -35,7 +35,7 @@ See docs/DECISIONS.md (top items here).
 Summary + docs/AI_USAGE.md · guardrails in CLAUDE.md and docs/AGENT_POLICY.md.
 
 ## Status
-- **Works now:**
+- **Works now:** JSON ingest into frozen records (bad rows flagged, never raised), blank/null normalisation, canonical part numbers, check R-001 (incomplete or malformed row).
 - **Incomplete:**
 - **Risks:**
 - **Next steps:**
