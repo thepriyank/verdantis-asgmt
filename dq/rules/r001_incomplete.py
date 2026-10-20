@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 from collections.abc import Sequence
 
 from dq.config import Config
@@ -33,7 +34,7 @@ def _malformed(rec: ParsedRecord, cfg: Config) -> ReviewCandidate:
         explanation=(
             f"Candidate issue detected: the row could not be read as a record ({rec.parse_error})."
         ),
-        evidence={"parse_error": rec.parse_error, "raw": rec.raw},
+        evidence={"parse_error": rec.parse_error, "raw": copy.deepcopy(rec.raw)},
         suggested_action="Ask the source owner to resend this row in the expected format.",
         source=Source.DETERMINISTIC_RULE,
     )

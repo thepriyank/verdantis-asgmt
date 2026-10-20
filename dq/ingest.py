@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 import json
+import math
 from pathlib import Path
 from typing import Any, NamedTuple
 
@@ -31,7 +32,7 @@ def load_file(path: Path, cfg: Config) -> IngestResult:
         raise IngestError(f"cannot read {path}: {exc}") from exc
     try:
         data = json.loads(text)
-    except json.JSONDecodeError as exc:
+    except (json.JSONDecodeError, RecursionError) as exc:
         raise IngestError(f"{path} is not valid JSON: {exc}") from exc
     if not isinstance(data, list):
         raise IngestError(f"{path}: expected a JSON array of records")
@@ -58,7 +59,7 @@ def _parse_row(index: int, row: Any, cfg: Config) -> ParsedRecord:
     errors: list[str] = []
     for field in FIELDS:
         value = row.get(field)
-        if isinstance(value, _BAD_TYPES):
+        if isinstance(value, _BAD_TYPES) or (isinstance(value, float) and not math.isfinite(value)):
             errors.append(f"{field} has unsupported type {type(value).__name__}")
             values[field] = None
         else:

@@ -29,6 +29,11 @@ def _parser() -> argparse.ArgumentParser:
 def main(argv: Sequence[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     cfg = load_config()
+    # Writing over the input would destroy the source records, which this tool never edits.
+    inputs = args.input.resolve()
+    if any(p and p.resolve() == inputs for p in (args.output, args.report)):
+        print("error: output path must differ from the input file", file=sys.stderr)
+        return EXIT_BAD_INPUT
     try:
         ingest = load_file(args.input, cfg)
     except IngestError as exc:

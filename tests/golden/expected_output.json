@@ -1,0 +1,483 @@
+{
+  "summary": {
+    "total_records": 16,
+    "total_candidates": 14,
+    "by_severity": {
+      "high": 5,
+      "low": 2,
+      "medium": 7
+    },
+    "by_source": {
+      "deterministic_rule": 9,
+      "heuristic": 5
+    },
+    "by_issue_type": {
+      "category_mismatch_candidate": 1,
+      "duplicate_item_id": 2,
+      "incomplete_record": 2,
+      "malformed_row": 2,
+      "missing_part_number": 1,
+      "non_standard_unit_of_measure": 1,
+      "potential_duplicate": 2,
+      "unsupported_unit_of_measure": 1,
+      "weak_description": 2
+    }
+  },
+  "candidates": [
+    {
+      "finding_id": "c1f6eb960a69",
+      "item_id": "1010",
+      "record_ref": {
+        "source_system": "ERP-A",
+        "row_index": 14
+      },
+      "issue_type": "malformed_row",
+      "severity": "high",
+      "confidence": 1.0,
+      "explanation": "Candidate issue detected: the row could not be read as a record (item_description has unsupported type list).",
+      "evidence": {
+        "parse_error": "item_description has unsupported type list",
+        "raw": {
+          "item_id": "1010",
+          "item_description": [
+            "Pump"
+          ],
+          "manufacturer": "Grundfos",
+          "manufacturer_part_number": "CR5",
+          "category": "Mechanical",
+          "unit_of_measure": "EA",
+          "source_system": "ERP-A"
+        }
+      },
+      "suggested_action": "Ask the source owner to resend this row in the expected format.",
+      "suggested_value": null,
+      "related_item_ids": [],
+      "source": "deterministic_rule",
+      "rule_id": "R-001",
+      "rule_version": "1",
+      "status": "needs_review",
+      "allowed_actions": [
+        "approve",
+        "reject",
+        "investigate"
+      ]
+    },
+    {
+      "finding_id": "b1e8980b7304",
+      "item_id": "3001",
+      "record_ref": {
+        "source_system": "ERP-A",
+        "row_index": 6
+      },
+      "issue_type": "duplicate_item_id",
+      "severity": "high",
+      "confidence": 1.0,
+      "explanation": "Candidate issue detected: item_id 3001 appears on 2 rows, with conflicting values in: item_description, manufacturer_part_number.",
+      "evidence": {
+        "conflicting_fields": [
+          "item_description",
+          "manufacturer_part_number"
+        ],
+        "other_rows": [
+          {
+            "source_system": "ERP-B",
+            "row_index": 7
+          }
+        ]
+      },
+      "suggested_action": "Investigate which row is authoritative before approval.",
+      "suggested_value": null,
+      "related_item_ids": [],
+      "source": "deterministic_rule",
+      "rule_id": "R-003",
+      "rule_version": "1",
+      "status": "needs_review",
+      "allowed_actions": [
+        "approve",
+        "reject",
+        "investigate"
+      ]
+    },
+    {
+      "finding_id": "bb2550a1c812",
+      "item_id": "3001",
+      "record_ref": {
+        "source_system": "ERP-B",
+        "row_index": 7
+      },
+      "issue_type": "duplicate_item_id",
+      "severity": "high",
+      "confidence": 1.0,
+      "explanation": "Candidate issue detected: item_id 3001 appears on 2 rows, with conflicting values in: item_description, manufacturer_part_number.",
+      "evidence": {
+        "conflicting_fields": [
+          "item_description",
+          "manufacturer_part_number"
+        ],
+        "other_rows": [
+          {
+            "source_system": "ERP-A",
+            "row_index": 6
+          }
+        ]
+      },
+      "suggested_action": "Investigate which row is authoritative before approval.",
+      "suggested_value": null,
+      "related_item_ids": [],
+      "source": "deterministic_rule",
+      "rule_id": "R-003",
+      "rule_version": "1",
+      "status": "needs_review",
+      "allowed_actions": [
+        "approve",
+        "reject",
+        "investigate"
+      ]
+    },
+    {
+      "finding_id": "07b36424d2f4",
+      "item_id": null,
+      "record_ref": {
+        "source_system": "ERP-B",
+        "row_index": 4
+      },
+      "issue_type": "incomplete_record",
+      "severity": "high",
+      "confidence": 1.0,
+      "explanation": "Candidate issue detected: required field(s) missing or blank: item_id.",
+      "evidence": {
+        "missing_fields": [
+          "item_id"
+        ],
+        "item_id": "   "
+      },
+      "suggested_action": "Request the missing value(s) from the source owner; review before use.",
+      "suggested_value": null,
+      "related_item_ids": [],
+      "source": "deterministic_rule",
+      "rule_id": "R-001",
+      "rule_version": "1",
+      "status": "needs_review",
+      "allowed_actions": [
+        "approve",
+        "reject",
+        "investigate"
+      ]
+    },
+    {
+      "finding_id": "f1ddcd271272",
+      "item_id": null,
+      "record_ref": {
+        "source_system": null,
+        "row_index": 15
+      },
+      "issue_type": "malformed_row",
+      "severity": "high",
+      "confidence": 1.0,
+      "explanation": "Candidate issue detected: the row could not be read as a record (row is str, expected an object).",
+      "evidence": {
+        "parse_error": "row is str, expected an object",
+        "raw": {
+          "value": "'this row is not a record'"
+        }
+      },
+      "suggested_action": "Ask the source owner to resend this row in the expected format.",
+      "suggested_value": null,
+      "related_item_ids": [],
+      "source": "deterministic_rule",
+      "rule_id": "R-001",
+      "rule_version": "1",
+      "status": "needs_review",
+      "allowed_actions": [
+        "approve",
+        "reject",
+        "investigate"
+      ]
+    },
+    {
+      "finding_id": "817ad2dfa0ff",
+      "item_id": "1001",
+      "record_ref": {
+        "source_system": "ERP-A",
+        "row_index": 0
+      },
+      "issue_type": "potential_duplicate",
+      "severity": "medium",
+      "confidence": 0.9,
+      "explanation": "Potential duplicate: 1 other row(s) have the same manufacturer and part number (matched as 6205ZZ).",
+      "evidence": {
+        "manufacturer": "SKF",
+        "manufacturer_part_number": "6205-ZZ",
+        "canonical_mpn": "6205ZZ",
+        "matching_rows": [
+          {
+            "source_system": "ERP-B",
+            "row_index": 1
+          }
+        ]
+      },
+      "suggested_action": "Investigate whether these rows describe the same part; review before approval.",
+      "suggested_value": null,
+      "related_item_ids": [
+        "2001"
+      ],
+      "source": "heuristic",
+      "rule_id": "H-002",
+      "rule_version": "1",
+      "status": "needs_review",
+      "allowed_actions": [
+        "approve",
+        "reject",
+        "investigate"
+      ]
+    },
+    {
+      "finding_id": "26957f7c4960",
+      "item_id": "1002",
+      "record_ref": {
+        "source_system": "ERP-A",
+        "row_index": 2
+      },
+      "issue_type": "weak_description",
+      "severity": "medium",
+      "confidence": 0.85,
+      "explanation": "Candidate issue detected: description has 1 word(s) and no identifying attribute such as a size, rating or part number.",
+      "evidence": {
+        "item_description": "bearing",
+        "tokens": [
+          "bearing"
+        ]
+      },
+      "suggested_action": "Ask the source owner for a fuller description; review before approval.",
+      "suggested_value": null,
+      "related_item_ids": [],
+      "source": "heuristic",
+      "rule_id": "H-001",
+      "rule_version": "1",
+      "status": "needs_review",
+      "allowed_actions": [
+        "approve",
+        "reject",
+        "investigate"
+      ]
+    },
+    {
+      "finding_id": "999066da7650",
+      "item_id": "1002",
+      "record_ref": {
+        "source_system": "ERP-A",
+        "row_index": 2
+      },
+      "issue_type": "missing_part_number",
+      "severity": "medium",
+      "confidence": 0.95,
+      "explanation": "Manufacturer is present but manufacturer part number is missing.",
+      "evidence": {
+        "manufacturer": "SKF",
+        "manufacturer_part_number": ""
+      },
+      "suggested_action": "Request manufacturer part number from the source owner.",
+      "suggested_value": null,
+      "related_item_ids": [],
+      "source": "deterministic_rule",
+      "rule_id": "R-002",
+      "rule_version": "1",
+      "status": "needs_review",
+      "allowed_actions": [
+        "approve",
+        "reject",
+        "investigate"
+      ]
+    },
+    {
+      "finding_id": "0e38a27e3935",
+      "item_id": "1004",
+      "record_ref": {
+        "source_system": "ERP-A",
+        "row_index": 5
+      },
+      "issue_type": "incomplete_record",
+      "severity": "medium",
+      "confidence": 1.0,
+      "explanation": "Candidate issue detected: required field(s) missing or blank: item_description.",
+      "evidence": {
+        "missing_fields": [
+          "item_description"
+        ],
+        "item_description": "n/a"
+      },
+      "suggested_action": "Request the missing value(s) from the source owner; review before use.",
+      "suggested_value": null,
+      "related_item_ids": [],
+      "source": "deterministic_rule",
+      "rule_id": "R-001",
+      "rule_version": "1",
+      "status": "needs_review",
+      "allowed_actions": [
+        "approve",
+        "reject",
+        "investigate"
+      ]
+    },
+    {
+      "finding_id": "3f07368dae84",
+      "item_id": "1006",
+      "record_ref": {
+        "source_system": "ERP-A",
+        "row_index": 9
+      },
+      "issue_type": "unsupported_unit_of_measure",
+      "severity": "medium",
+      "confidence": 1.0,
+      "explanation": "Candidate issue detected: unit of measure 'XYZ' is not in the supported list.",
+      "evidence": {
+        "unit_of_measure": "XYZ"
+      },
+      "suggested_action": "Confirm the unit of measure with the source owner; review before approval.",
+      "suggested_value": null,
+      "related_item_ids": [],
+      "source": "deterministic_rule",
+      "rule_id": "R-004",
+      "rule_version": "1",
+      "status": "needs_review",
+      "allowed_actions": [
+        "approve",
+        "reject",
+        "investigate"
+      ]
+    },
+    {
+      "finding_id": "f76d729a674f",
+      "item_id": "1007",
+      "record_ref": {
+        "source_system": "ERP-B",
+        "row_index": 10
+      },
+      "issue_type": "weak_description",
+      "severity": "medium",
+      "confidence": 0.85,
+      "explanation": "Candidate issue detected: description has 1 word(s) and no identifying attribute such as a size, rating or part number.",
+      "evidence": {
+        "item_description": "valve",
+        "tokens": [
+          "valve"
+        ]
+      },
+      "suggested_action": "Ask the source owner for a fuller description; review before approval.",
+      "suggested_value": null,
+      "related_item_ids": [],
+      "source": "heuristic",
+      "rule_id": "H-001",
+      "rule_version": "1",
+      "status": "needs_review",
+      "allowed_actions": [
+        "approve",
+        "reject",
+        "investigate"
+      ]
+    },
+    {
+      "finding_id": "b38e52cdedc3",
+      "item_id": "2001",
+      "record_ref": {
+        "source_system": "ERP-B",
+        "row_index": 1
+      },
+      "issue_type": "potential_duplicate",
+      "severity": "medium",
+      "confidence": 0.9,
+      "explanation": "Potential duplicate: 1 other row(s) have the same manufacturer and part number (matched as 6205ZZ).",
+      "evidence": {
+        "manufacturer": "skf ",
+        "manufacturer_part_number": "6205 zz",
+        "canonical_mpn": "6205ZZ",
+        "matching_rows": [
+          {
+            "source_system": "ERP-A",
+            "row_index": 0
+          }
+        ]
+      },
+      "suggested_action": "Investigate whether these rows describe the same part; review before approval.",
+      "suggested_value": null,
+      "related_item_ids": [
+        "1001"
+      ],
+      "source": "heuristic",
+      "rule_id": "H-002",
+      "rule_version": "1",
+      "status": "needs_review",
+      "allowed_actions": [
+        "approve",
+        "reject",
+        "investigate"
+      ]
+    },
+    {
+      "finding_id": "ac6dcafaa109",
+      "item_id": "1003",
+      "record_ref": {
+        "source_system": "ERP-B",
+        "row_index": 3
+      },
+      "issue_type": "category_mismatch_candidate",
+      "severity": "low",
+      "confidence": 0.7,
+      "explanation": "Description contains 'bearing', which suggests category Mechanical, but category is Electrical.",
+      "evidence": {
+        "matched_keyword": "bearing",
+        "expected_category": "Mechanical",
+        "category": "Electrical"
+      },
+      "suggested_action": "Review category assignment before approval.",
+      "suggested_value": "Mechanical",
+      "related_item_ids": [],
+      "source": "heuristic",
+      "rule_id": "H-003",
+      "rule_version": "1",
+      "status": "needs_review",
+      "allowed_actions": [
+        "approve",
+        "reject",
+        "investigate"
+      ]
+    },
+    {
+      "finding_id": "a46f0c20b8f9",
+      "item_id": "1005",
+      "record_ref": {
+        "source_system": "ERP-A",
+        "row_index": 8
+      },
+      "issue_type": "non_standard_unit_of_measure",
+      "severity": "low",
+      "confidence": 0.9,
+      "explanation": "Candidate issue detected: unit of measure 'each' is not a standard code; it resembles 'EA'.",
+      "evidence": {
+        "unit_of_measure": "each"
+      },
+      "suggested_action": "Review whether 'EA' is the intended unit of measure before approval.",
+      "suggested_value": "EA",
+      "related_item_ids": [],
+      "source": "deterministic_rule",
+      "rule_id": "R-004",
+      "rule_version": "1",
+      "status": "needs_review",
+      "allowed_actions": [
+        "approve",
+        "reject",
+        "investigate"
+      ]
+    }
+  ],
+  "parse_issues": [
+    {
+      "row_index": 14,
+      "message": "item_description has unsupported type list"
+    },
+    {
+      "row_index": 15,
+      "message": "row is str, expected an object"
+    }
+  ]
+}

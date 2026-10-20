@@ -70,7 +70,7 @@ Brief #8 (confidence + severity) and #9 (explanation) are part of every candidat
 | AC12 | Candidate language (R3) | **Given** any input **when** reviewed **then** the serialized output (and the JSON/markdown report) contains no banned word | `tests/properties/test_banned_language.py` | [x] |
 | AC13 | Schema + provenance (R2, R4) | **Given** any input **when** reviewed **then** every candidate validates against `ReviewCandidate`, has `status=="needs_review"`, a `source`, `rule_id` and `rule_version` | `tests/properties/test_schema.py` | [x] |
 | AC14 | Determinism (I4) | **Given** the same input twice **when** reviewed **then** the JSON output is identical | `tests/properties/test_determinism.py` | [x] |
-| AC15 | Golden fixture (R8) | **Given** `data/samples/edge_cases.json` **when** reviewed **then** output exactly matches `tests/golden/expected_output.json` | `tests/golden/test_golden.py` | [ ] |
+| AC15 | Golden fixture (R8) | **Given** `data/samples/edge_cases.json` **when** reviewed **then** output exactly matches `tests/golden/expected_output.json` | `tests/golden/test_golden.py` | [x] |
 | AC16 | CLI errors (R5, I6) | **Given** `[]` / a missing path / invalid JSON **when** the CLI runs **then** exit 0 + message / exit 2 / exit 2, no traceback | `tests/unit/test_cli.py` | [x] |
 | AC17 | *(Should)* A-001 AI stub (6, R9) | **Given** a vague description **when** reviewed **then** A-001 with confidence ≤ 0.6 and source `ai_assisted_candidate`; only allowlisted fields reach the suggester; invalid suggester output → no candidate | `tests/unit/test_ai_guardrails.py` | [ ] |
 

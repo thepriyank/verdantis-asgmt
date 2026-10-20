@@ -19,9 +19,15 @@ def check(records: Sequence[ParsedRecord], cfg: Config) -> list[ReviewCandidate]
         if rec.parse_error or not rec.category or not rec.item_description:
             continue
         hit = _expected_category(rec.item_description, lookup)
-        if hit and hit[1].casefold() != rec.category.casefold():
+        if hit and _norm(hit[1]) != _norm(rec.category):
             out.append(_candidate(rec, cfg, *hit))
     return out
+
+
+def _norm(category: str) -> str:
+    # "Mechanical" vs "mechanicals": ignore case and a plural s. The taxonomy itself is an
+    # assumption documented in DECISIONS #9.
+    return category.casefold().removesuffix("s")
 
 
 def _expected_category(description: str, lookup: dict[str, str]) -> tuple[str, str] | None:
