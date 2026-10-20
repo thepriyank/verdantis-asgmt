@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 from collections.abc import Sequence
 
-from dq.ai.guardrails import build_request, validate_response
+from dq.ai.guardrails import build_request, should_send, validate_response
 from dq.ai.suggester import ALLOWED_FIELDS, Suggester
 from dq.config import Config
 from dq.models import ParsedRecord, ReviewCandidate, Source
@@ -20,8 +20,8 @@ def check_with(
 ) -> list[ReviewCandidate]:
     out: list[ReviewCandidate] = []
     for rec in records:
-        # Malformed rows and rows without a description are R-001's business; send nothing.
-        if rec.parse_error or not rec.item_description:
+        # Rows that fail R-001, or carry contact details, are never sent (guardrails.should_send).
+        if not should_send(rec, cfg):
             continue
         candidate = _suggest_for(suggester, rec, cfg)
         if candidate:
