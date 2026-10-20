@@ -5,6 +5,10 @@ description = "Item-master data-quality assistant: produces review candidates fo
 requires-python = ">=3.12"
 dependencies = ["pydantic>=2.7"]
 
+[project.optional-dependencies]
+# Could-have: POST /review reusing the same pipeline. Not installed by `make setup`.
+api = ["fastapi>=0.110", "uvicorn>=0.29"]
+
 [dependency-groups]
 dev = ["pytest>=8", "pytest-cov>=5", "ruff>=0.6", "mypy>=1.11"]
 

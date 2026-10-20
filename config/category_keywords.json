@@ -1,0 +1,36 @@
+{
+  "_comment": "Heuristic H-003: description keyword -> expected category. English only, starting vocabulary for a steward to extend. See docs/DECISIONS.md #9.",
+  "keywords": {
+    "Mechanical": [
+      "bearing",
+      "gasket",
+      "seal",
+      "coupling",
+      "gear",
+      "shaft",
+      "bolt",
+      "nut",
+      "washer",
+      "pulley",
+      "sprocket",
+      "chain"
+    ],
+    "Electrical": [
+      "fuse",
+      "relay",
+      "contactor",
+      "breaker",
+      "transformer",
+      "cable",
+      "terminal",
+      "capacitor"
+    ],
+    "Piping": [
+      "valve",
+      "flange",
+      "pipe",
+      "elbow",
+      "gauge"
+    ]
+  }
+}
